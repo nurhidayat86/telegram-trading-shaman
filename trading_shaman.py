@@ -245,8 +245,6 @@ def execute_command(key, ticker, TOKEN, chat_id):
     if (series_crp.loc[["sell_signal", "buy_signal"]].sum() > 0) or (series_crp.loc["oversold_confirm"].sum() != 0):
         send_message(TOKEN, chat_id, send_str)
 
-# Triggered from a message on a Cloud Pub/Sub topic.
-@functions_framework.cloud_event
 def hello_shaman(config):
     key = config['av_key']
     TOKEN = config['telegram_bot_key']
