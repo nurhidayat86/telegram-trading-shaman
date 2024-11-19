@@ -1,0 +1,6 @@
+pandas
+alpha_vantage
+numpy==1.26.4
+pandas_ta
+PyYAML
+requests
