@@ -1,5 +1,3 @@
-import base64
-import functions_framework
 import os
 # import time
 import pandas as pd
@@ -8,6 +6,11 @@ from alpha_vantage.cryptocurrencies import CryptoCurrencies
 import pandas_ta as ta
 import requests
 import yaml
+
+try:
+    import set_os_env
+except:
+    print("no OS.env")
 
 def compute_gradient(start_index, df, x_label, y_label, len_data):
     # Ensure we only take data points from n to n+5
@@ -259,8 +262,12 @@ def hello_shaman(config):
 
 if __name__ == "__main__":
     config = dict()
+
+    # OS Environment
     config['av_key'] = os.getenv('AV_KEY')
     config['telegram_bot_key'] = os.getenv('TEL_BOT_KEY')
     config['eth_chat_id'] = os.getenv('ETH_CHAT_ID')
-    config['btch_chat_id'] = os.getenv('BTC_CHAT_ID')
+    config['btc_chat_id'] = os.getenv('BTC_CHAT_ID')
+
+    # Execute script
     hello_shaman(config)
