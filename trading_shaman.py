@@ -258,10 +258,9 @@ def hello_shaman(config):
     execute_command(key, ticker, TOKEN, chat_id)
 
 if __name__ == "__main__":
-  config = dict()
-  config['av_key'] = os.getenv('AV_KEY')
-  config['telegram_bot_key'] = os.getenv('TEL_BOT_KEY')
-  config['eth_chat_id'] = os.getenv('ETH_CHAT_ID')
-  config['btch_chat_id'] = os.getenv('BTC_CHAT_ID')
-
-  hello_shaman(config)
+    config = dict()
+    config['av_key'] = os.getenv('AV_KEY')
+    config['telegram_bot_key'] = os.getenv('TEL_BOT_KEY')
+    config['eth_chat_id'] = os.getenv('ETH_CHAT_ID')
+    config['btch_chat_id'] = os.getenv('BTC_CHAT_ID')
+    hello_shaman(config)
