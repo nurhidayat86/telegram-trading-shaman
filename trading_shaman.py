@@ -222,9 +222,18 @@ class Crypto:
         df.loc[mask_os1, 'oversold_confirm'] = 1
         df.loc[mask_ob1, 'oversold_confirm'] = -1
 
+        cols_change = ['RSI_14', 'EMA_10', 'EMA_50', 'ADX_14', 'DMP_14',
+                    'DMN_14', 'MACDh_12_26_9', 'BBU_20_2.0', 'BBL_20_2.0']
+
+        cols_change_to = ['RSI14', 'EMA10', 'EMA50', 'ADX14', 'DMP14',
+                       'DMN14', 'MACDH12-26-9', 'BBU20-2', 'BBL20-2']
+
+        for idx in range(0, len(cols_change)):
+            df = df.rename(columns={cols_change[idx]: cols_change_to[idx]})
+
         cols_use = ['oversold_confirm', 'trend_confirm', 'sell_signal', 'buy_signal', 'flag_ema_crossing',
-                    'ema_short_above_or_below', 'flag_grad_ema', 'gradient_norm_ema_10', 'RSI_14', 'EMA_10', 'EMA_50', 'ADX_14', 'DMP_14',
-                    'DMN_14', 'MACDh_12_26_9', 'close', 'BBU_20_2.0', 'BBL_20_2.0']
+                    'ema_short_above_or_below', 'flag_grad_ema', 'gradient_norm_ema_10', 'RSI14', 'EMA10', 'EMA50', 'ADX14', 'DMP14',
+                    'DMN14', 'MACDH12-26-9', 'close', 'BBU20-2', 'BBL20-2']
 
         return df.iloc[-1:][cols_use].sum()
 
@@ -281,4 +290,5 @@ def run_script():
     return send_str, 200
 
 if __name__ == '__main__':
+    # run_script()
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
