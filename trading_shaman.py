@@ -6,6 +6,9 @@ from alpha_vantage.cryptocurrencies import CryptoCurrencies
 import pandas_ta as ta
 import requests
 import yaml
+from flask import Flask
+
+app = Flask(__name__)
 
 try:
     import set_os_env
@@ -247,6 +250,7 @@ def execute_command(key, ticker, TOKEN, chat_id):
     send_str = f"\n\n{ticker}:\n{series_crp}"
     if (series_crp.loc[["sell_signal", "buy_signal"]].sum() > 0) or (series_crp.loc["oversold_confirm"].sum() != 0):
         send_message(TOKEN, chat_id, send_str)
+    return send_str
 
 def hello_shaman(config):
     key = config['av_key']
@@ -254,13 +258,16 @@ def hello_shaman(config):
 
     chat_id = config['eth_chat_id']
     ticker = 'ETH'
-    execute_command(key, ticker, TOKEN, chat_id)
+    send_str = execute_command(key, ticker, TOKEN, chat_id)
 
     chat_id = config['btc_chat_id']
     ticker = 'BTC'
-    execute_command(key, ticker, TOKEN, chat_id)
+    send_str = execute_command(key, ticker, TOKEN, chat_id)
+    return send_str
 
-if __name__ == "__main__":
+@app.route('/', methods=['POST'])
+def run_script():
+    # Place your script logic here
     config = dict()
 
     # OS Environment
@@ -270,4 +277,8 @@ if __name__ == "__main__":
     config['btc_chat_id'] = os.getenv('BTC_CHAT_ID')
 
     # Execute script
-    hello_shaman(config)
+    send_str = hello_shaman(config)
+    return send_str, 200
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
