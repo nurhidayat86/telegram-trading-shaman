@@ -95,9 +95,9 @@ class Crypto:
         return df
 
     def get_technical_indicators(self, df):
-        df.ta.ema(length=10, append=True)
-        df.ta.ema(length=50, append=True)
-        df.ta.rsi(length=14, append=True)
+        df.ta.ema(length=60, append=True)
+        df.ta.ema(length=120, append=True)
+        df.ta.rsi(length=12, append=True)
         df.ta.bbands(length=20, std=2, append=True)
         df.ta.macd(fast=12, slow=26, signal=9, append=True)
         df.ta.psar(append=True)
@@ -106,40 +106,40 @@ class Crypto:
 
     def get_misc_indicators(self, df, len_data=3, len_data_norm=15):
         for i in range(len(df) - len_data):  # Make sure we have at least 5 points for each calculation
-            gradient = compute_gradient(i, df, 'idx_int', 'EMA_10', len_data)
-            df.at[i + len_data, 'gradient_ema_10'] = gradient  # Store the gradient in the row corresponding to n+4
-            gradient = compute_gradient(i, df, 'idx_int', 'RSI_14', len_data)
-            df.at[i + len_data, 'gradient_rsi_14'] = gradient  # Store the gradient in the row corresponding to n+4
+            gradient = compute_gradient(i, df, 'idx_int', 'EMA_60', len_data)
+            df.at[i + len_data, 'gradient_ema_60'] = gradient  # Store the gradient in the row corresponding to n+4
+            gradient = compute_gradient(i, df, 'idx_int', 'RSI_12', len_data)
+            df.at[i + len_data, 'gradient_rsi_12'] = gradient  # Store the gradient in the row corresponding to n+4
             gradient = compute_gradient(i, df, 'idx_int', 'close', len_data)
             df.at[i + len_data, 'gradient_ls'] = gradient
-            gradient = compute_gradient(i, df, 'idx_int', 'EMA_50', len_data)
-            df.at[i + len_data, 'gradient_ema_50'] = gradient
+            gradient = compute_gradient(i, df, 'idx_int', 'EMA_120', len_data)
+            df.at[i + len_data, 'gradient_ema_120'] = gradient
 
         for i in range(len(df) - len_data_norm):  # Make sure we have at least 15 points for each calculation
-            gradient = compute_gradient_normalize(i, df, 'idx_int', 'EMA_10', len_data_norm)
-            df.at[i + len_data_norm, 'gradient_norm_ema_10'] = gradient  # Store the gradient in the row corresponding to n+4
+            gradient = compute_gradient_normalize(i, df, 'idx_int', 'EMA_60', len_data_norm)
+            df.at[i + len_data_norm, 'gradient_norm_ema_60'] = gradient  # Store the gradient in the row corresponding to n+4
 
-        df['r_ema_s_m'] = df['EMA_10'] / df['EMA_50']
-        df['flag_ema_crossing'] = check_crossing(df, 'EMA_10', 'EMA_50')
+        df['r_ema_s_m'] = df['EMA_60'] / df['EMA_120']
+        df['flag_ema_crossing'] = check_crossing(df, 'EMA_60', 'EMA_120')
 
         df['psar_flip_dir'] = 0
         df.loc[(df['PSARr_0.02_0.2'] == 1) & (df['PSARl_0.02_0.2'].isnull() == False), 'psar_flip_dir'] = 1
         df.loc[(df['PSARr_0.02_0.2'] == 1) & (df['PSARs_0.02_0.2'].isnull() == False), 'psar_flip_dir'] = -1
 
-        mask_ema_grad_pos = (df['gradient_ema_10'] > 0.05)
-        mask_ema_grad_neg = (df['gradient_ema_10'] < -0.05)
+        mask_ema_grad_pos = (df['gradient_ema_60'] > 0.05)
+        mask_ema_grad_neg = (df['gradient_ema_60'] < -0.05)
         df['flag_grad_ema'] = 0
         df.loc[mask_ema_grad_pos, 'flag_grad_ema'] = 1
         df.loc[mask_ema_grad_neg, 'flag_grad_ema'] = -1
 
-        mask_ema_grad_pos = (df['gradient_ema_50'] > 0.05)
-        mask_ema_grad_neg = (df['gradient_ema_50'] < -0.05)
-        df['flag_grad_ema_50'] = 0
-        df.loc[mask_ema_grad_pos, 'flag_grad_ema_50'] = 1
-        df.loc[mask_ema_grad_neg, 'flag_grad_ema_50'] = -1
+        mask_ema_grad_pos = (df['gradient_ema_120'] > 0.05)
+        mask_ema_grad_neg = (df['gradient_ema_120'] < -0.05)
+        df['flag_grad_ema_120'] = 0
+        df.loc[mask_ema_grad_pos, 'flag_grad_ema_120'] = 1
+        df.loc[mask_ema_grad_neg, 'flag_grad_ema_120'] = -1
 
-        mask_rsi_grad_pos = (df['gradient_rsi_14'] >= 1)
-        mask_rsi_grad_neg = (df['gradient_rsi_14'] <= 1)
+        mask_rsi_grad_pos = (df['gradient_rsi_12'] >= 1)
+        mask_rsi_grad_neg = (df['gradient_rsi_12'] <= 1)
         df['flag_grad_rsi'] = 0
         df.loc[mask_rsi_grad_pos, 'flag_grad_rsi'] = 1
         df.loc[mask_rsi_grad_neg, 'flag_grad_rsi'] = -1
@@ -149,13 +149,13 @@ class Crypto:
         df.loc[df['gradient_ls'] <= -0.05, 'flag_grad_ls'] = -1
 
         df['ema_short_above_or_below'] = 0
-        df.loc[(df['EMA_10'] > df['EMA_50']), 'ema_short_above_or_below'] = 1
-        df.loc[(df['EMA_10'] < df['EMA_50']), 'ema_short_above_or_below'] = -1
+        df.loc[(df['EMA_60'] > df['EMA_120']), 'ema_short_above_or_below'] = 1
+        df.loc[(df['EMA_60'] < df['EMA_120']), 'ema_short_above_or_below'] = -1
 
         df['r_close_bbu'] = df['close'] / df['BBU_20_2.0']
         df['r_close_bbl'] = df['close'] / df['BBL_20_2.0']
-        df['r_ema_bbu'] = df['EMA_10'] / df['BBU_20_2.0']
-        df['r_ema_bbl'] = df['EMA_10'] / df['BBL_20_2.0']
+        df['r_ema_bbu'] = df['EMA_60'] / df['BBU_20_2.0']
+        df['r_ema_bbl'] = df['EMA_60'] / df['BBL_20_2.0']
         return df
 
     def create_signal(self, df):
@@ -171,10 +171,10 @@ class Crypto:
         # Buy Signal
         mask_le1 = (df['ema_short_above_or_below'] == 1) & (df['flag_ema_crossing'] == 1)
         mask_le2 = (df['MACDh_12_26_9'] > 0)
-        mask_le3 = (df['r_close_bbl'] <= 1.0005)
-        mask_le4 = (df['RSI_14'] < 70) & (df['RSI_14'] > 30)
+        mask_le3 = (df['r_close_bbl'] <= 1)
+        mask_le4 = (df['RSI_12'] < 70) & (df['RSI_12'] > 30)
         mask_le5 = (df['PSARl_0.02_0.2'] < df['close']) & (df['psar_flip_dir'] > 0)
-        mask_le6 = (df['RSI_14'] < 40)
+        mask_le6 = (df['RSI_12'] < 40)
         mask_le7 = (df['flag_grad_ema'] >= 0)
 
         df['ema_crossing_pos'] = 0
@@ -191,12 +191,13 @@ class Crypto:
         df['buy_signal'] = np.nan
         # df.loc[(mask_le1 & mask_le4) | (mask_le5 & mask_le4 & mask_le2) | (mask_le2 & mask_le6 & mask_le3), 'long_entry'] = 1
         # df.loc[(mask_le1 & mask_le4) | (mask_le6 & mask_le7), 'buy_signal'] = 1
-        df.loc[(mask_le1 & mask_le4) | (mask_le3 & mask_le7), 'buy_signal'] = 1
+        # df.loc[(mask_le1 & mask_le4) | (mask_le3), 'buy_signal'] = 1
+        df.loc[mask_le1, 'buy_signal'] = 1
 
         # Sell Signal
         mask_lex1 = (df['ema_short_above_or_below'] == -1) & (df['flag_ema_crossing'] == 1)
-        # mask_lex2 = (df['RSI_14']>70)
-        mask_lex2 = (df['RSI_14'] > 55)
+        # mask_lex2 = (df['RSI_12']>70)
+        mask_lex2 = (df['RSI_12'] > 55)
         mask_lex3 = (df['psar_flip_dir'] == -1)
         mask_lex4 = (df['flag_grad_ema'] == 0)
         mask_lex5 = (df['MACDh_12_26_9'] < 0)
@@ -214,25 +215,25 @@ class Crypto:
         df.loc[(mask_lex1) | (mask_lex2 & mask_lex4), 'sell_signal'] = 1
 
         #Over-bought/Sold
-        mask_os1 = (df['RSI_14'] <= 20)
+        mask_os1 = (df['RSI_12'] <= 20)
         mask_os2 = (df['r_close_bbl'] <= 1.000)
-        mask_ob1 = (df['RSI_14'] >= 80)
+        mask_ob1 = (df['RSI_12'] >= 80)
         mask_ob2 = (df['r_close_bbu'] >= 1.000)
         df['oversold_confirm'] = 0
         df.loc[mask_os1, 'oversold_confirm'] = 1
         df.loc[mask_ob1, 'oversold_confirm'] = -1
 
-        cols_change = ['RSI_14', 'EMA_10', 'EMA_50', 'ADX_14', 'DMP_14',
+        cols_change = ['RSI_12', 'EMA_60', 'EMA_120', 'ADX_14', 'DMP_14',
                     'DMN_14', 'MACDh_12_26_9', 'BBU_20_2.0', 'BBL_20_2.0']
 
-        cols_change_to = ['RSI14', 'EMA10', 'EMA50', 'ADX14', 'DMP14',
+        cols_change_to = ['RSI12', 'EMA60', 'EMA50', 'ADX14', 'DMP14',
                        'DMN14', 'MACDH12-26-9', 'BBU20-2', 'BBL20-2']
 
         for idx in range(0, len(cols_change)):
             df = df.rename(columns={cols_change[idx]: cols_change_to[idx]})
 
         cols_use = ['oversold_confirm', 'trend_confirm', 'sell_signal', 'buy_signal', 'flag_ema_crossing',
-                    'ema_short_above_or_below', 'flag_grad_ema', 'gradient_norm_ema_10', 'RSI14', 'EMA10', 'EMA50', 'ADX14', 'DMP14',
+                    'ema_short_above_or_below', 'flag_grad_ema', 'gradient_norm_ema_60', 'RSI12', 'EMA60', 'EMA50', 'ADX14', 'DMP14',
                     'DMN14', 'MACDH12-26-9', 'close', 'BBU20-2', 'BBL20-2']
 
         return df.iloc[-1:][cols_use].sum()
